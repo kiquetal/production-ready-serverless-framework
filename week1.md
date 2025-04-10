@@ -4,7 +4,10 @@
 
 Scalable by default.
 Resilient by default.Multi az
-S3 (11 9s)
+Secure
 
+- The serverless-first- mindset
+
+serverless -> gains traction -> container.
 
 
