@@ -19,4 +19,4 @@ var/
 # Serverless directories
 .serverless
 .venv
-.requirements
+.requirements.zip
