@@ -13,13 +13,36 @@ This repository is used to follow the "serverless-heroe" course offered by Yan C
 
 The current implementation includes a simple HTTP API that lists all S3 buckets in your AWS account, demonstrating basic AWS service integration.
 
+## Table of Contents
+- [Usage](#usage)
+  - [Deployment](#deployment)
+  - [Invocation](#invocation)
+  - [Local development](#local-development)
+  - [Bundling dependencies](#bundling-dependencies)
+- [Serverless Framework v4 Changes and Guidelines](#serverless-framework-v4-changes-and-guidelines)
+  - [Key Changes in Serverless Framework v4](#key-changes-in-serverless-framework-v4)
+  - [Using Lambda Layers for Python Requirements](#using-lambda-layers-for-python-requirements)
+- [Verifying Serverless Framework v4 Setup](#verifying-serverless-framework-v4-setup)
+
 ## Usage
 
 ### Deployment
 
+You can deploy the service using the following command:
+
 ```
 serverless deploy
 ```
+
+This will deploy using the default stage ('dev') and the default AWS profile.
+
+To specify a different stage or AWS profile, you can use the `--stage` and `--aws-profile` parameters:
+
+```
+serverless deploy --stage prod --aws-profile production
+```
+
+This will deploy to the 'prod' stage using the 'production' AWS profile.
 
 After deploying, you should see output similar to:
 
@@ -60,6 +83,12 @@ You can invoke your function locally by using the following command:
 
 ```
 serverless invoke local --function hello
+```
+
+You can also specify a stage and profile for local invocation:
+
+```
+serverless invoke local --function hello --stage prod --aws-profile production
 ```
 
 Which should result in response similar to the following:
@@ -107,6 +136,7 @@ Serverless Framework v4 introduces several important changes and improvements co
    - In v3, stage was defined at the provider level: `provider.stage`
    - In v4, stage is now a top-level property: `stage: dev`
    - This change allows for more consistent stage handling across the framework
+   - In this project, we use variable substitution to allow command-line specification: `stage: ${opt:stage, 'dev'}`
 
 2. **Improved Variables System**:
    - Enhanced variable resolution with better error messages
@@ -128,6 +158,11 @@ Serverless Framework v4 introduces several important changes and improvements co
    - Better support for newer AWS services and features
    - Improved IAM role handling
 
+6. **AWS Profile Configuration**:
+   - Serverless Framework supports using named AWS profiles for deployment
+   - In this project, we use variable substitution to allow command-line specification: `profile: ${opt:aws-profile, 'default'}`
+   - This allows you to easily switch between different AWS accounts or environments
+
 ### Using Lambda Layers for Python Requirements
 
 Lambda Layers provide a way to separate your application code from its dependencies, resulting in smaller deployment packages and the ability to share dependencies across multiple functions.
@@ -140,7 +175,6 @@ This project uses the `serverless-python-requirements` plugin to automatically c
 custom:
   pythonRequirements:
     layer: true    # Creates a Lambda Layer for dependencies
-    zip: true      # Ensures proper packaging of the layer
 
 functions:
   hello:
@@ -171,7 +205,6 @@ functions:
    custom:
      pythonRequirements:
        layer: true
-       zip: true
 
    functions:
      yourFunction:
@@ -221,12 +254,24 @@ You can also verify that your configuration is correct by running:
 serverless print
 ```
 
-This will display the resolved configuration after variables substitution, which can help identify any issues with your `serverless.yml` file.
+To verify your configuration with a specific stage and profile, you can run:
+
+```
+serverless print --stage prod --aws-profile production
+```
+
+This will display the resolved configuration after variables substitution, which can help identify any issues with your `serverless.yml` file and ensure that the stage and profile parameters are being applied correctly.
 
 To test the S3 bucket listing functionality without deploying, you can run:
 
 ```
 serverless invoke local --function hello
+```
+
+Or with a specific stage and profile:
+
+```
+serverless invoke local --function hello --stage prod --aws-profile production
 ```
 
 If everything is set up correctly, you should see a response with your S3 buckets listed in the output.
