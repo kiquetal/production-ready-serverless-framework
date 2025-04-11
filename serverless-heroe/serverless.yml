@@ -6,9 +6,9 @@ frameworkVersion: '4'
 
 provider:
   name: aws
-  runtime: python3.12
+  runtime: python3.10
   stage: ${opt:stage, 'dev'}
-  profile: ${opt:profile, 'default'}
+  profile: ${opt:aws-profile, 'default'}
   iam:
     role:
       statements:
@@ -21,7 +21,7 @@ provider:
 custom:
   pythonRequirements:
     layer: true
-    zip: true
+    zip: false
 
 package:
   individually: true
@@ -35,6 +35,11 @@ functions:
       - httpApi:
           path: /
           method: get
-
+    package:
+      exclude:
+        - '**'
+      include:
+        - lambdas/handler.py
+        - lib/response.py
 plugins:
   - serverless-python-requirements
