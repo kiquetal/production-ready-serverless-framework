@@ -4,6 +4,13 @@ org: cresterida
 service: serverless-heroe
 frameworkVersion: '4'
 
+stages:
+    dev:
+        name: development
+        description: Development stage
+    prod:
+        name: production
+        description: Production stage
 provider:
   name: aws
   runtime: python3.10
@@ -28,6 +35,7 @@ package:
 
 functions:
   hello:
+    name: ${self:stages.dev.name}-${self:service}-hello
     handler: lambdas/handler.hello
     layers:
       - Ref: PythonRequirementsLambdaLayer
