@@ -13,6 +13,7 @@ provider:
         - Effect: Allow
           Action:
             - s3:ListAllMyBuckets
+            - sts:GetCallerIdentity
           Resource: '*'
 
 custom:
@@ -25,7 +26,7 @@ package:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: lambdas/handler.hello
     layers:
       - Ref: PythonRequirementsLambdaLayer
     events:
