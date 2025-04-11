@@ -10,4 +10,6 @@ Secure
 
 serverless -> gains traction -> container.
 
+- Lock-in.
 
+architecture, programming language, framework, library,etc.

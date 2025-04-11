@@ -1,0 +1,37 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: cresterida
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: serverless-heroe
+frameworkVersion: '4'
+
+provider:
+  name: aws
+  runtime: python3.12
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - s3:ListAllMyBuckets
+          Resource: '*'
+
+custom:
+  pythonRequirements:
+    layer: true
+    zip: true
+
+package:
+  individually: true
+
+functions:
+  hello:
+    handler: handler.hello
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    events:
+      - httpApi:
+          path: /
+          method: get
+
+plugins:
+  - serverless-python-requirements
