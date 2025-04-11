@@ -97,6 +97,114 @@ serverless plugin install -n serverless-python-requirements
 
 Running the above will automatically add `serverless-python-requirements` to `plugins` section in your `serverless.yml` file and add it as a `devDependency` to `package.json` file. The `package.json` file will be automatically created if it doesn't exist beforehand. Now you will be able to add your dependencies to `requirements.txt` file (`Pipfile` and `pyproject.toml` is also supported but requires additional configuration) and they will be automatically injected to Lambda package during build process. For more details about the plugin's configuration, please refer to [official documentation](https://github.com/UnitedIncome/serverless-python-requirements).
 
+## Serverless Framework v4 Changes and Guidelines
+
+Serverless Framework v4 introduces several important changes and improvements compared to v3. Understanding these changes is crucial for migrating existing projects or starting new ones.
+
+### Key Changes in Serverless Framework v4
+
+1. **Global Stage Configuration**:
+   - In v3, stage was defined at the provider level: `provider.stage`
+   - In v4, stage is now a top-level property: `stage: dev`
+   - This change allows for more consistent stage handling across the framework
+
+2. **Improved Variables System**:
+   - Enhanced variable resolution with better error messages
+   - Support for new variable sources and improved performance
+   - More predictable variable resolution order
+
+3. **Streamlined Configuration**:
+   - Simplified configuration structure
+   - Removal of deprecated properties and features
+   - More consistent naming conventions
+
+4. **Enhanced Plugin System**:
+   - Better plugin lifecycle management
+   - Improved hooks and events system
+   - More reliable plugin execution order
+
+5. **AWS Provider Updates**:
+   - Updated AWS SDK usage
+   - Better support for newer AWS services and features
+   - Improved IAM role handling
+
+### Using Lambda Layers for Python Requirements
+
+Lambda Layers provide a way to separate your application code from its dependencies, resulting in smaller deployment packages and the ability to share dependencies across multiple functions.
+
+#### Configuration in serverless.yml
+
+This project uses the `serverless-python-requirements` plugin to automatically create a Lambda Layer for Python dependencies:
+
+```yaml
+custom:
+  pythonRequirements:
+    layer: true    # Creates a Lambda Layer for dependencies
+    zip: true      # Ensures proper packaging of the layer
+
+functions:
+  hello:
+    handler: handler.hello
+    layers:
+      - Ref: PythonRequirementsLambdaLayer  # References the auto-generated layer
+```
+
+#### Benefits of Using Layers for Requirements
+
+1. **Smaller Function Packages**: Your function code is deployed separately from dependencies, resulting in smaller packages and faster deployments.
+
+2. **Dependency Reuse**: Multiple functions can share the same layer, reducing duplication and overall deployment size.
+
+3. **Easier Dependency Management**: Dependencies can be updated independently from function code.
+
+4. **Improved Cold Start Performance**: In some cases, using layers can improve cold start times.
+
+#### How to Use Layers for Requirements
+
+1. **Install the Plugin**:
+   ```
+   serverless plugin install -n serverless-python-requirements
+   ```
+
+2. **Configure Your serverless.yml**:
+   ```yaml
+   custom:
+     pythonRequirements:
+       layer: true
+       zip: true
+
+   functions:
+     yourFunction:
+       handler: path/to/handler.function
+       layers:
+         - Ref: PythonRequirementsLambdaLayer
+   ```
+
+3. **Specify Dependencies**:
+   Add your Python dependencies to `requirements.txt`:
+   ```
+   boto3==1.34.0
+   requests==2.31.0
+   ```
+
+4. **Deploy**:
+   ```
+   serverless deploy
+   ```
+
+The plugin will automatically:
+1. Install the dependencies from requirements.txt
+2. Package them into a Lambda Layer
+3. Deploy the layer alongside your functions
+4. Configure your functions to use the layer
+
+#### Layer Size Limitations
+
+Be aware that AWS Lambda Layers have a size limit of 250MB (unzipped). If your dependencies exceed this limit, you may need to:
+1. Split your dependencies across multiple layers
+2. Optimize your dependencies to reduce size
+3. Package some dependencies directly with your function code
+
 ## Verifying Serverless Framework v4 Setup
 
 To check if your Serverless Framework v4 setup is working correctly, you can run the following command:
