@@ -7,6 +7,8 @@ frameworkVersion: '4'
 provider:
   name: aws
   runtime: python3.12
+  stage: ${opt:stage, 'dev'}
+  profile: ${opt:profile, 'default'}
   iam:
     role:
       statements:
