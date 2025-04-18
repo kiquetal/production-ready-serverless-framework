@@ -12,6 +12,7 @@ def hello(event, context):
     print(f"[DEBUG_LOG] AWS User/Role ARN: {caller_identity['Arn']}")
     print(f"[DEBUG_LOG] AWS User ID: {caller_identity['UserId']}")
     tprint("kiquetal")
+    s3_endpoint_url = None
     # Initialize S3 client
     if os.environ.get('IS_LOCAL'):
         s3_endpoint_url = 'http://localhost:4566'
@@ -22,6 +23,9 @@ def hello(event, context):
         aws_secret_access_key='test',
         region_name='us-east-1'
     )
+    else:
+        s3_client = boto3.client('s3')
+
     print(f"[DEBUG_LOG] Running locally (IS_LOCAL=True), using S3 endpoint: {s3_endpoint_url} with dummy credentials.")
 
     # List all S3 buckets
