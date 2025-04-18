@@ -1,3 +1,5 @@
+import os
+
 import boto3
 from lib.response import success_response, error_response
 from art import tprint
@@ -11,7 +13,16 @@ def hello(event, context):
     print(f"[DEBUG_LOG] AWS User ID: {caller_identity['UserId']}")
     tprint("kiquetal")
     # Initialize S3 client
-    s3_client = boto3.client('s3')
+    if os.environ.get('IS_LOCAL'):
+        s3_endpoint_url = 'http://localhost:4566'
+        s3_client = boto3.client(
+        's3',
+        endpoint_url=s3_endpoint_url,
+        aws_access_key_id='test',
+        aws_secret_access_key='test',
+        region_name='us-east-1'
+    )
+    print(f"[DEBUG_LOG] Running locally (IS_LOCAL=True), using S3 endpoint: {s3_endpoint_url} with dummy credentials.")
 
     # List all S3 buckets
     try:
