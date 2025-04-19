@@ -18,6 +18,7 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
   - [Deployment](#deployment)
   - [Invocation](#invocation)
   - [Local development](#local-development)
+- [Lambda Layers and Dependencies](#lambda-layers-and-dependencies)
 
 ## API Endpoints
 
@@ -143,3 +144,56 @@ python seed-restaurants.py --table my-production-table
 
 python seed_data.py --table restaurants --endpoint-url None --profile localstack
 
+## Lambda Layers and Dependencies
+
+This project uses the `serverless-python-requirements` plugin to automatically handle Python dependencies and create Lambda layers. Here's how it works:
+
+### Plugin Configuration
+
+The plugin is configured in `serverless.yml`:
+
+```yaml
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    layer: true
+    noDeploy:
+      - pytest
+      - boto3
+      - botocore
+    dockerizePip: true
+```
+
+### How It Works
+
+1. The plugin reads your `requirements.txt` file
+2. When `layer: true` is set, it:
+   - Creates a Lambda layer containing all dependencies
+   - Packages dependencies into a ZIP file
+   - Uploads the layer to AWS
+   - Automatically attaches the layer to your functions
+
+3. The `dockerizePip: true` option:
+   - Builds dependencies in a Docker container
+   - Ensures compatibility with Lambda's runtime environment
+   - Handles platform-specific packages correctly
+
+4. The `noDeploy` list excludes packages that:
+   - Are already provided by AWS Lambda
+   - Are only needed for development
+
+### Working with Layers
+
+To update dependencies:
+
+1. Modify your `requirements.txt`
+2. Run `serverless deploy`
+3. The plugin will:
+   - Rebuild the layer with new dependencies
+   - Create a new layer version
+   - Update your functions to use the new layer
+
+The layers are managed automatically, so you don't need to handle them manually.
+`
