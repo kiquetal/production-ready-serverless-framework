@@ -1,6 +1,6 @@
 import os
 import boto3
-from lib.response import success_response, error_response
+from lib.response import success_response, error_response, html_response
 from art import tprint
 
 def hello(event, context):
@@ -54,18 +54,7 @@ def returnHtml(event, context):
         with open(html_path, 'r', encoding='utf-8') as file:
             html = file.read()
 
-        response = {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'text/html; charset=UTF-8'
-            },
-            'body': html
-        }
-
-        return response
+        return html_response(html)
     except FileNotFoundError:
-        return {
-            'statusCode': 404,
-            'body': 'HTML file not found. Make sure static files are in the correct location.'
-        }
+        return html_response('HTML file not found. Make sure static files are in the correct location.', 404)
 

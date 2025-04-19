@@ -46,7 +46,6 @@ functions:
       - httpApi:
           path: /
           method: get
-          authorizer: aws_iam
     package:
       exclude:
         - '**'
@@ -62,7 +61,6 @@ functions:
       - httpApi:
           path: /html
           method: get
-          authorizer: aws_iam
     package:
       exclude:
         - '**'
