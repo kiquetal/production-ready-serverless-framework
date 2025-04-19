@@ -35,12 +35,26 @@ provider:
 custom:
   pythonRequirements:
     layer: true
-    zip: false
 
 package:
   individually: true
 
 functions:
+  index:
+    handler: lambdas/index.returnHtml
+    name: ${self:stages.${self:provider.stage}.name}-index
+    events:
+      - httpApi:
+          path: /
+          method: get
+          cors: true
+    package:
+        exclude:
+            - '**'
+        include:
+            - lambdas/index.py
+            - lib/response.py
+            - static/index.html
   get-restaurants:
     handler: lambdas/restaurants.handler
     name: ${self:stages.${self:provider.stage}.name}-get-restaurants
