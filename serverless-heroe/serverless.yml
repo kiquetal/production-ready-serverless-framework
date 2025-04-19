@@ -8,6 +8,7 @@ stages:
     dev:
         name: development
         description: Development stage
+        RESTAURANT_TABLE: ${self:service}-${self:provider.stage}-restaurants
     prod:
         name: production
         description: Production stage
@@ -24,6 +25,12 @@ provider:
             - s3:ListAllMyBuckets
             - sts:GetCallerIdentity
           Resource: '*'
+        - Effect: Allow
+          Action:
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:Query
+          Resource: !GetAtt RestaurantsTable.Arn
 
 custom:
   pythonRequirements:
@@ -35,8 +42,11 @@ package:
 
 functions:
   get-restaurants:
-    handler: restaurants.handler
+    handler: lambdas/restaurants.handler
     name: ${self:stages.${self:provider.stage}.name}-get-restaurants
+    environment:
+      RESTAURANTS_TABLE: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
+      default_results: 8
     events:
       - http:
           path: /restaurants
@@ -46,14 +56,14 @@ functions:
       exclude:
         - '**'
       include:
-        - lambda/restaurants.py
+        - lambdas/restaurants.py
         - lib/response.py
 resources:
   Resources:
     RestaurantsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:provider.environment.restaurants_table}
+        TableName: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: id
