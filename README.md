@@ -106,3 +106,40 @@ serverless invoke local --function hello --stage prod --aws-profile production
 - `lambdas/`: Contains Lambda function handlers
 - `lib/`: Contains shared utility functions
 - `static/`: Contains static HTML files served by the application
+
+## Seeding Test Data Locally
+
+To seed the DynamoDB table with test data locally (using LocalStack), you can use the following command:
+
+```bash
+python seed_data.py --table YOUR_TABLE_NAME [options]
+```
+
+Available options:
+- `--table`: (Required) The name of the DynamoDB table
+- `--endpoint-url`: LocalStack endpoint URL (default: http://localhost:4566)
+- `--profile`: AWS profile to use
+- `--create-table`: Create the table before seeding data
+
+Example usage:
+```bash
+# Seed data into existing table
+python seed_data.py --table restaurants
+
+# Create table and seed data
+python seed_data.py --table restaurants --create-table
+
+# Use custom endpoint and profile
+python seed_data.py --table restaurants --endpoint-url http://localhost:4566 --profile localstack
+```
+
+### Using with Real AWS (Production)
+
+To seed data into a real AWS DynamoDB table, simply omit the `--endpoint-url` parameter:
+
+```bash
+# Seed data into existing AWS DynamoDB table
+python seed-restaurants.py --table my-production-table
+
+python seed_data.py --table restaurants --endpoint-url None --profile localstack
+
