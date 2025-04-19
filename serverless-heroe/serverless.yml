@@ -8,7 +8,7 @@ stages:
     dev:
         name: development
         description: Development stage
-        RESTAURANT_TABLE: ${self:service}-${self:provider.stage}-restaurants
+        RESTAURANT_TABLE: ${self:stages.dev.name}-${self:service}-restaurants
     prod:
         name: production
         description: Production stage
