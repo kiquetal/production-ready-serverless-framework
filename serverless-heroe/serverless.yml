@@ -53,89 +53,26 @@ functions:
       include:
         - lambdas/handler.py
         - lib/response.py
+  returnHtml:
+    name: ${self:stages.dev.name}-${self:service}-returnHtml
+    handler: lambdas/handler.returnHtml
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    events:
+      - httpApi:
+          path: /html
+          method: get
+          authorizer: aws_iam
+    package:
+      exclude:
+        - '**'
+      include:
+        - lambdas/handler.py
+        - lib/response.py
+        - static/index.html
 plugins:
   - serverless-python-requirements
 
 resources:
   Resources:
-    # Cognito User Pool
-    CognitoUserPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UserPoolName: ${self:custom.userPoolName}
-        AutoVerifiedAttributes:
-          - email
-        UsernameAttributes:
-          - email
-        Schema:
-          - Name: email
-            Required: true
-            Mutable: true
 
-    # Cognito User Pool Client
-    CognitoUserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: ${self:custom.userPoolClientName}
-        UserPoolId: !Ref CognitoUserPool
-        GenerateSecret: false
-        ExplicitAuthFlows:
-          - ALLOW_USER_PASSWORD_AUTH
-          - ALLOW_REFRESH_TOKEN_AUTH
-          - ALLOW_USER_SRP_AUTH
-
-    # Cognito Identity Pool
-    CognitoIdentityPool:
-      Type: AWS::Cognito::IdentityPool
-      Properties:
-        IdentityPoolName: ${self:custom.identityPoolName}
-        AllowUnauthenticatedIdentities: false
-        CognitoIdentityProviders:
-          - ClientId: !Ref CognitoUserPoolClient
-            ProviderName: !GetAtt CognitoUserPool.ProviderName
-
-    # IAM Role for Authenticated Users
-    CognitoAuthenticatedRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-            - Effect: Allow
-              Principal:
-                Federated: cognito-identity.amazonaws.com
-              Action: sts:AssumeRoleWithWebIdentity
-              Condition:
-                StringEquals:
-                  "cognito-identity.amazonaws.com:aud": !Ref CognitoIdentityPool
-                ForAnyValue:StringLike:
-                  "cognito-identity.amazonaws.com:amr": authenticated
-        Policies:
-          - PolicyName: ${self:service}-${self:provider.stage}-authenticated-policy
-            PolicyDocument:
-              Version: '2012-10-17'
-              Statement:
-                - Effect: Allow
-                  Action:
-                    - 'execute-api:Invoke'
-                  Resource:
-                    - "arn:aws:execute-api:${aws:region}:${aws:accountId}:*/*/*/*"
-
-    # Attaching Roles to Identity Pool
-    CognitoIdentityPoolRoleAttachment:
-      Type: AWS::Cognito::IdentityPoolRoleMapping
-      Properties:
-        IdentityPoolId: !Ref CognitoIdentityPool
-        Roles:
-          authenticated: !GetAtt CognitoAuthenticatedRole.Arn
-
-  # Outputs to make it easier to use these resources
-  Outputs:
-    UserPoolId:
-      Value: !Ref CognitoUserPool
-    UserPoolClientId:
-      Value: !Ref CognitoUserPoolClient
-    IdentityPoolId:
-      Value: !Ref CognitoIdentityPool
-    Region:
-      Value: ${aws:region}
