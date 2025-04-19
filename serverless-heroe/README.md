@@ -22,6 +22,10 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
 - [Serverless Framework v4 Changes and Guidelines](#serverless-framework-v4-changes-and-guidelines)
   - [Key Changes in Serverless Framework v4](#key-changes-in-serverless-framework-v4)
   - [Using Lambda Layers for Python Requirements](#using-lambda-layers-for-python-requirements)
+- [API Gateway Authentication with AWS IAM](#api-gateway-authentication-with-aws-iam)
+  - [Authentication Flow](#authentication-flow)
+  - [Working with Cognito User Pool and Identity Pool](#working-with-cognito-user-pool-and-identity-pool)
+  - [Accessing the Protected API](#accessing-the-protected-api)
 - [Verifying Serverless Framework v4 Setup](#verifying-serverless-framework-v4-setup)
 
 ## Usage
@@ -238,6 +242,122 @@ Be aware that AWS Lambda Layers have a size limit of 250MB (unzipped). If your d
 2. Optimize your dependencies to reduce size
 3. Package some dependencies directly with your function code
 
+## API Gateway Authentication with AWS IAM
+
+This project uses AWS IAM authentication to secure API Gateway endpoints. The authentication is implemented using Amazon Cognito User Pools and Identity Pools, which enable users to obtain temporary AWS credentials for accessing the API.
+
+### Authentication Flow
+
+1. **User Registration and Authentication**:
+   - Users register and authenticate with Cognito User Pool.
+   - After successful authentication, users receive JWT tokens.
+
+2. **Obtaining AWS Credentials**:
+   - Users exchange their JWT tokens for temporary AWS credentials via Cognito Identity Pool.
+   - These AWS credentials have permissions defined by the authenticated role.
+
+3. **Accessing the API**:
+   - API requests must be signed with SigV4 using the temporary AWS credentials.
+   - API Gateway validates these signatures before allowing access to the endpoints.
+
+### Working with Cognito User Pool and Identity Pool
+
+After deploying your application, you will have the following resources:
+
+- **Cognito User Pool**: Handles user registration, authentication, and management.
+- **Cognito User Pool Client**: Client application that users will interact with.
+- **Cognito Identity Pool**: Provides temporary AWS credentials to authenticated users.
+- **IAM Roles**: Defines what authenticated users can access (in this case, API Gateway endpoints).
+
+#### Creating Users
+
+You can create users in the Cognito User Pool using the AWS CLI or Console:
+
+```bash
+# Using AWS CLI
+aws cognito-idp sign-up \
+  --client-id YOUR_USER_POOL_CLIENT_ID \
+  --username user@example.com \
+  --password YourSecurePassword123! \
+  --user-attributes Name=email,Value=user@example.com \
+  --region YOUR_REGION
+
+# Confirm the user (admin only)
+aws cognito-idp admin-confirm-sign-up \
+  --user-pool-id YOUR_USER_POOL_ID \
+  --username user@example.com \
+  --region YOUR_REGION
+```
+
+#### Understanding IAM Roles vs IAM Users vs Amazon Cognito
+
+There are important distinctions between these concepts:
+
+- **IAM Users**: Long-term credentials for accessing AWS resources, typically for administrative purposes.
+- **IAM Roles**: Sets of permissions that can be assumed temporarily by trusted entities.
+- **Cognito User Pool**: User directory for web and mobile apps, handling authentication but not authorization.
+- **Cognito Identity Pool**: Provides temporary AWS credentials by assuming IAM roles on behalf of authenticated users.
+
+In this setup:
+1. Users authenticate via Cognito User Pool (NOT IAM Users)
+2. Cognito Identity Pool assigns them the appropriate IAM Role
+3. The IAM Role grants permissions to access the API Gateway
+
+This differs from using custom authorizers because AWS_IAM authentication requires requests to be signed with valid AWS credentials using Signature Version 4 (SigV4).
+
+### Accessing the Protected API
+
+To access the protected API, clients need to:
+
+1. **Authenticate with Cognito User Pool**:
+   ```javascript
+   // Example with AWS Amplify
+   const { idToken } = await Auth.signIn(username, password);
+   ```
+
+2. **Get AWS Credentials from Cognito Identity Pool**:
+   ```javascript
+   // Example with AWS Amplify
+   const credentials = await Auth.currentCredentials();
+   ```
+
+3. **Sign API Requests with SigV4**:
+   ```javascript
+   // Example with AWS SDK v3
+   import { SignatureV4 } from "@aws-sdk/signature-v4";
+   import { Sha256 } from "@aws-crypto/sha256-js";
+   
+   const signer = new SignatureV4({
+     credentials,
+     region: "YOUR_REGION",
+     service: "execute-api",
+     sha256: Sha256
+   });
+   
+   const signed = await signer.sign({
+     method: "GET",
+     hostname: "YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com",
+     path: "/",
+     headers: {
+       host: "YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com"
+     }
+   });
+   
+   // Now use signed.headers in your fetch request
+   ```
+
+#### Using AWS CLI to Test the API
+
+For testing purposes, you can use the AWS CLI with your own AWS credentials:
+
+```bash
+aws apigatewayv2 get-api \
+  --api-id YOUR_API_ID \
+  --region YOUR_REGION
+```
+
+Note: The IAM role associated with your CLI credentials must have permission to invoke the API Gateway.
+
 ## Verifying Serverless Framework v4 Setup
 
 To check if your Serverless Framework v4 setup is working correctly, you can run the following command:
@@ -275,3 +395,4 @@ serverless invoke local --function hello --stage prod --aws-profile production
 ```
 
 If everything is set up correctly, you should see a response with your S3 buckets listed in the output.
+`
