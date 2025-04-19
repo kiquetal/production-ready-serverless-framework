@@ -97,7 +97,6 @@ serverless invoke local --function hello --stage prod --aws-profile production
 ```
 
 ## Project Structure
-
 - `lambdas/`: Contains Lambda function handlers
 - `lib/`: Contains shared utility functions
 - `static/`: Contains static HTML files served by the application
