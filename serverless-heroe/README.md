@@ -84,6 +84,12 @@ You can invoke your function locally by using the following command:
 serverless invoke local --function hello
 ```
 
+**Important**: When using `serverless invoke local`, use the function name as defined in your `serverless.yml` file, not the handler function name from your code. For example, if your serverless.yml defines a function named `listBuckets` that uses the handler `lambdas/handler.getBuckets`, you would use:
+
+```
+serverless invoke local --function listBuckets
+```
+
 You can also specify a stage and profile for local invocation:
 
 ```
