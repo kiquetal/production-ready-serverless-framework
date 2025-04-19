@@ -66,8 +66,8 @@ resources:
         TableName: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: name
             AttributeType: S
         KeySchema:
-          - AttributeName: id
+          - AttributeName: name
             KeyType: HASH
