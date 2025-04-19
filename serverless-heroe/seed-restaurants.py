@@ -47,8 +47,7 @@ def seed_restaurants():
     },
     ]
   dynamodb = boto3.resource('dynamodb')
-  table = dynamodb.Table(os.getenv("RESTAURANTS_TABLE"))
-
+  table = dynamodb.Table("development-serverless-heroe-restaurants")
   # DynamoDB batch_writer automatically handles batches of up to 25 items
   batch_size = 25
   total_batches = math.ceil(len(restaurants) / batch_size)
@@ -69,3 +68,5 @@ def seed_restaurants():
 
   print(f"Successfully seeded {len(restaurants)} restaurants to {os.getenv('RESTAURANTS_TABLE')}")
 
+if __name__ == "__main__":
+    seed_restaurants()
