@@ -52,9 +52,11 @@ functions:
         exclude:
             - '**'
         include:
-            - lambdas/index.py
+            - lambdas/handler.py
             - lib/response.py
             - static/index.html
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
   get-restaurants:
     handler: lambdas/restaurants.handler
     name: ${self:stages.${self:provider.stage}.name}-get-restaurants
@@ -72,6 +74,8 @@ functions:
       include:
         - lambdas/restaurants.py
         - lib/response.py
+plugins:
+  - serverless-python-requirements
 resources:
   Resources:
     RestaurantsTable:
