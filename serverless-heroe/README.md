@@ -141,10 +141,5 @@ To seed data into a real AWS DynamoDB table, simply omit the `--endpoint-url` pa
 # Seed data into existing AWS DynamoDB table
 python seed-restaurants.py --table my-production-table
 
-# Using specific AWS profile
-python seed-restaurants.py --table my-production-table --profile production
-
-# Create table and seed data in AWS
-python seed-restaurants.py --table my-production-table --create-table --profile production
-```
+python seed_data.py --table restaurants --endpoint-url None --profile localstack
 
