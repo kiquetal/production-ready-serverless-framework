@@ -1,6 +1,6 @@
 import os
-
 import boto3
+import math
 
 def seed_restaurants():
 
@@ -48,12 +48,24 @@ def seed_restaurants():
     ]
   dynamodb = boto3.resource('dynamodb')
   table = dynamodb.Table(os.getenv("RESTAURANTS_TABLE"))
-  for restaurant in restaurants:
-    table.put_item(
-        item={
-            "name": restaurant["name"],
-            "image": restaurant["image"],
-            "themes": restaurant["themes"]
-                }
-        )
-  print(f"seeded {len(restaurants)} restaurants to {os.getenv('RESTAURANTS_TABLE')}")
+
+  # DynamoDB batch_writer automatically handles batches of up to 25 items
+  batch_size = 25
+  total_batches = math.ceil(len(restaurants) / batch_size)
+
+  print(f"Starting to seed {len(restaurants)} restaurants in {total_batches} batch(es)")
+
+  with table.batch_writer() as batch:
+      for i, restaurant in enumerate(restaurants, 1):
+          batch.put_item(
+              Item={
+                  "name": restaurant["name"],
+                  "image": restaurant["image"],
+                  "themes": restaurant["themes"]
+              }
+          )
+          if i % batch_size == 0:
+              print(f"Processed batch {i // batch_size} of {total_batches}")
+
+  print(f"Successfully seeded {len(restaurants)} restaurants to {os.getenv('RESTAURANTS_TABLE')}")
+
