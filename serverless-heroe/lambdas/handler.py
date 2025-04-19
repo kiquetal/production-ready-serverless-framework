@@ -1,5 +1,4 @@
 import os
-
 import boto3
 from lib.response import success_response, error_response
 from art import tprint
@@ -43,3 +42,30 @@ def hello(event, context):
         return success_response(body)
     except Exception as e:
         return error_response("Error listing S3 buckets", error=str(e))
+
+def returnHtml(event, context):
+    """
+    Lambda function handler that returns HTML content
+    """
+    # Static files should be in a separate directory at the project root level
+    # This allows them to be deployed separately as static assets
+    html_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static', 'index.html')
+    try:
+        with open(html_path, 'r', encoding='utf-8') as file:
+            html = file.read()
+
+        response = {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'text/html; charset=UTF-8'
+            },
+            'body': html
+        }
+
+        return response
+    except FileNotFoundError:
+        return {
+            'statusCode': 404,
+            'body': 'HTML file not found. Make sure static files are in the correct location.'
+        }
+
