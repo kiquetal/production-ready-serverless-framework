@@ -44,7 +44,7 @@ functions:
     handler: lambdas/handler.returnHtml
     name: ${self:stages.${self:provider.stage}.name}-index
     events:
-      - httpApi:
+      - http:
           path: /
           method: get
           cors: true
