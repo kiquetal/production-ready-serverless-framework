@@ -29,48 +29,35 @@ custom:
   pythonRequirements:
     layer: true
     zip: false
-  userPoolName: ${self:service}-${self:provider.stage}-user-pool
-  userPoolClientName: ${self:service}-${self:provider.stage}-client
-  identityPoolName: ${self:service}-${self:provider.stage}-identity-pool
 
 package:
   individually: true
 
 functions:
-  hello:
-    name: ${self:stages.dev.name}-${self:service}-hello
-    handler: lambdas/handler.hello
-    layers:
-      - Ref: PythonRequirementsLambdaLayer
+  get-restaurants:
+    handler: restaurants.handler
+    name: ${self:stages.${self:provider.stage}.name}-get-restaurants
     events:
-      - httpApi:
-          path: /
+      - http:
+          path: /restaurants
           method: get
+          cors: true
     package:
       exclude:
         - '**'
       include:
-        - lambdas/handler.py
+        - lambda/restaurants.py
         - lib/response.py
-  returnHtml:
-    name: ${self:stages.dev.name}-${self:service}-returnHtml
-    handler: lambdas/handler.returnHtml
-    layers:
-      - Ref: PythonRequirementsLambdaLayer
-    events:
-      - httpApi:
-          path: /html
-          method: get
-    package:
-      exclude:
-        - '**'
-      include:
-        - lambdas/handler.py
-        - lib/response.py
-        - static/index.html
-plugins:
-  - serverless-python-requirements
-
 resources:
   Resources:
-
+    RestaurantsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.restaurants_table}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
