@@ -41,7 +41,7 @@ package:
 
 functions:
   index:
-    handler: lambdas/index.returnHtml
+    handler: lambdas/handler.returnHtml
     name: ${self:stages.${self:provider.stage}.name}-index
     events:
       - httpApi:
