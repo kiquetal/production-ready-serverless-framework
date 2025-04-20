@@ -6,6 +6,7 @@ from boto3.dynamodb.types import TypeDeserializer
 from jinja2 import FileSystemLoader, Environment
 
 from lib.response import success_response, error_response, html_response
+from lib.sig4 import aws_signed_request
 import datetime
 # Initialize DynamoDB client
 dynamodb = boto3.client('dynamodb')

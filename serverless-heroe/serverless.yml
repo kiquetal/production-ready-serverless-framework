@@ -32,7 +32,10 @@ provider:
             - dynamodb:GetItem
             - dynamodb:Query
           Resource: !GetAtt RestaurantsTable.Arn
-
+        - Effect: Allow
+          Action:
+            - execute-api:Invoke
+          Resource: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/${self:provider.stage}/GET/restaurants'
 custom:
   pythonRequirements:
     layer: true
@@ -61,7 +64,7 @@ functions:
     environment:
       default_results: 8
       RESTAURANTS_TABLE: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
-      API_GATWAY: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
+      API_GATEWAY: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
 
   get-restaurants:
     handler: lambdas/restaurants.handler
