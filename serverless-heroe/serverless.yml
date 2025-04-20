@@ -17,6 +17,7 @@ provider:
   runtime: python3.10
   stage: ${opt:stage, 'dev'}
   profile: ${opt:aws-profile, 'default'}
+  logRetentionInDays: 7
   iam:
     role:
       statements:
