@@ -45,7 +45,7 @@ package:
 
 functions:
   index:
-    handler: lambdas/restaurants.load_restaurants
+    handler: lambdas/index.load_restaurants
     name: ${self:stages.${self:provider.stage}.name}-index
     events:
       - http:
@@ -56,8 +56,8 @@ functions:
         exclude:
             - '**'
         include:
-            - lambdas/restaurants.py
             - lib/response.py
+            - lib/sig4.py
             - static/index.html
     layers:
       - Ref: PythonRequirementsLambdaLayer
