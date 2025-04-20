@@ -77,6 +77,8 @@ functions:
           path: /restaurants
           method: get
           cors: true
+          authorizer: aws_iam
+
     package:
       exclude:
         - '**'
