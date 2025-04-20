@@ -10,7 +10,7 @@ def return_page():
     try:
         template_dir = os.path.join(os.path.dirname(__file__), '..','static')
         env = Environment(loader=FileSystemLoader(template_dir), autoescape=True)
-        template = env.get_template('index.html')
+        template = env.get_template('index-cognito.html')
         return template
     except Exception as e:
         print("Error loading template: ", str(e))

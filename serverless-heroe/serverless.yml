@@ -52,6 +52,7 @@ functions:
           path: /
           method: get
           cors: true
+
     package:
         exclude:
             - '**'
@@ -60,6 +61,7 @@ functions:
             - lib/response.py
             - lib/sig4.py
             - static/index.html
+            - static/index-cognito.html
     layers:
       - Ref: PythonRequirementsLambdaLayer
     environment:
