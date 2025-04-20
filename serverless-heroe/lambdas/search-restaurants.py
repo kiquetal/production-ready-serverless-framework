@@ -1,7 +1,6 @@
+import json
 import boto3
 import os
-
-from lambdas.restaurants import default_results
 from lib.response import success_response, error_response
 
 
@@ -13,13 +12,14 @@ def search_by_theme(theme,count):
 
     params = {
         'TableName': table_name,
-        'Limit': count,
+        'Limit': int(count),
         'FilterExpression': 'contains(#themes, :theme)',
         'ExpressionAttributeNames': {
             '#themes': 'themes'
         },
         'ExpressionAttributeValues': {
-            ':theme': theme }
+            ':theme': {'S': theme}
+        }
     }
 
     # Scan the table with the filter expression
@@ -29,8 +29,8 @@ def search_by_theme(theme,count):
 
 def handler(event, context):
     try:
-        # read body to get python dict
-        req = event['body']
+        # Obtain JSON body from the event
+        req = json.loads(event['body'])
         theme = req['theme']
         default_results = os.getenv("default_results", 8)
         restaurants = search_by_theme(theme,default_results)

@@ -43,6 +43,17 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
   - `RESTAURANTS_TABLE`: DynamoDB table name for restaurants
   - `default_results`: 8 (default number of results)
 
+### 3. Search Restaurants
+
+- **URL**: `/restaurants/search`
+- **Method**: POST
+- **Description**: Searches for restaurants based on provided criteria.
+- **Handler**: `lambdas/search-restaurants.handler`
+- **Authentication**: Cognito User Pools
+- **Environment Variables**:
+  - `RESTAURANTS_TABLE`: DynamoDB table name for restaurants
+  - `default_results`: 8 (default number of results)
+
 You can deploy the service using the following command:
 
 ```
@@ -203,4 +214,3 @@ To update dependencies:
    - Update your functions to use the new layer
 
 The layers are managed automatically, so you don't need to handle them manually.
-`

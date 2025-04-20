@@ -91,10 +91,15 @@ functions:
       - Ref: PythonRequirementsLambdaLayer
   search-restaurants:
     handler: lambdas/search-restaurants.handler
+    name: ${self:stages.${self:provider.stage}.name}-search-restaurants
     events:
       - http:
           path: /restaurants/search
           method: post
+          authorizer:
+            name: CognitoAuthorizer
+            type: COGNITO_USER_POOLS
+            arn: !GetAtt CognitoUserPoolId.Arn
     package:
         exclude:
             - '**'
