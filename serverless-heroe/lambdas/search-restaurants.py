@@ -2,7 +2,10 @@ import json
 import boto3
 import os
 from lib.response import success_response, error_response
+from boto3.dynamodb.types import TypeDeserializer
 
+# Create a deserializer instance
+deserializer = TypeDeserializer()
 
 def search_by_theme(theme,count):
 
@@ -27,6 +30,10 @@ def search_by_theme(theme,count):
     items = response.get('Items', [])
     return items
 
+def deserialize_dynamodb_item(item):
+    """Convert a DynamoDB item to a regular Python dictionary."""
+    return {k: deserializer.deserialize(v) for k, v in item.items()}
+
 def handler(event, context):
     try:
         # Obtain JSON body from the event
@@ -34,7 +41,11 @@ def handler(event, context):
         theme = req['theme']
         default_results = os.getenv("default_results", 8)
         restaurants = search_by_theme(theme,default_results)
-        return success_response(restaurants)
+
+        # Deserialize DynamoDB items before returning
+        deserialized_restaurants = [deserialize_dynamodb_item(restaurant) for restaurant in restaurants]
+
+        return success_response(deserialized_restaurants)
     except Exception as e:
         print(f"[ERROR-handler] {str(e)}")
 
