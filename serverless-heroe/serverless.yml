@@ -95,6 +95,12 @@ functions:
       - http:
           path: /restaurants/search
           method: post
+    package:
+        exclude:
+            - '**'
+        include:
+            - lambdas/search-restaurants.py
+            - lib/response.py
     environment:
       default_results: 8
       RESTAURANTS_TABLE: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}

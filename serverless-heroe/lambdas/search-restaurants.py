@@ -1,6 +1,7 @@
 import boto3
 import os
 
+from lambdas.restaurants import default_results
 from lib.response import success_response, error_response
 
 
@@ -12,7 +13,7 @@ def search_by_theme(theme,count):
 
     params = {
         'TableName': table_name,
-        'Limit': 10,
+        'Limit': count,
         'FilterExpression': 'contains(#themes, :theme)',
         'ExpressionAttributeNames': {
             '#themes': 'themes'
@@ -31,8 +32,10 @@ def handler(event, context):
         # read body to get python dict
         req = event['body']
         theme = req['theme']
-        restaurants = search_by_theme(theme,10)
+        default_results = os.getenv("default_results", 8)
+        restaurants = search_by_theme(theme,default_results)
         return success_response(restaurants)
     except Exception as e:
-        print(f"[ERROR] {e}")
-        return error_response(str(e))
+        print(f"[ERROR-handler] {str(e)}")
+
+        return error_response("Failed to search ", str(e))
