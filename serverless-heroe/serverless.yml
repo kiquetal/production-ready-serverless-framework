@@ -81,7 +81,6 @@ functions:
           method: get
           cors: true
           authorizer: aws_iam
-
     package:
       exclude:
         - '**'
@@ -90,6 +89,15 @@ functions:
         - lib/response.py
     layers:
       - Ref: PythonRequirementsLambdaLayer
+  search-restaurants:
+    handler: lambdas/search-restaurants.handler
+    events:
+      - http:
+          path: /restaurants/search
+          method: post
+    environment:
+      default_results: 8
+      RESTAURANTS_TABLE: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
 plugins:
   - serverless-python-requirements
 resources:
