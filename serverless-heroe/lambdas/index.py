@@ -46,7 +46,17 @@ def load_restaurants(event, context):
         restaurants = get_restaurants_via_api(default_results)
         print("Weekday is", datetime.datetime.now().weekday())
         dayOfWeek = days[datetime.datetime.now().weekday()]
-        rendered_page = template.render(dayOfWeek=dayOfWeek, restaurants=restaurants)
+
+        variables_templates = {
+            'dayOfWeek': dayOfWeek,
+            'restaurants': restaurants,
+            'awsRegion': os.environ.get('AWS_REGION'),
+            'cognitoUserPoolId': os.environ.get('COGNITO_USER_POOL_ID'),
+            'cognitoClientId': os.environ.get('COGNITO_CLIENT_ID'),
+            'searchUrl': os.environ.get('SEARCH_URL'),
+            }
+
+        rendered_page = template.render(**variables_templates)
         return html_response(rendered_page)
     except Exception as e:
         return error_response("Failed to load restaurants", str(e))
