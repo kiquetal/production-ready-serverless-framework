@@ -40,6 +40,7 @@ def load_restaurants(event, context):
     should parse the JSON response and render it in the template
     """
     try:
+        default_results = int(os.environ.get('default_results', 8))
         template = return_page()
         restaurants = get_restaurants_via_api(default_results)
         print("Weekday is", datetime.datetime.now().weekday())

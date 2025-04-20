@@ -56,6 +56,7 @@ functions:
         exclude:
             - '**'
         include:
+            - lambdas/index.py
             - lib/response.py
             - lib/sig4.py
             - static/index.html
@@ -63,7 +64,6 @@ functions:
       - Ref: PythonRequirementsLambdaLayer
     environment:
       default_results: 8
-      RESTAURANTS_TABLE: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
       API_GATEWAY: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
 
   get-restaurants:
