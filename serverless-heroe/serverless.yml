@@ -41,7 +41,7 @@ package:
 
 functions:
   index:
-    handler: lambdas/handler.returnHtml
+    handler: lambdas/restaurants.load_restaurants
     name: ${self:stages.${self:provider.stage}.name}-index
     events:
       - http:
@@ -52,11 +52,16 @@ functions:
         exclude:
             - '**'
         include:
-            - lambdas/handler.py
+            - lambdas/restaurants.py
             - lib/response.py
             - static/index.html
     layers:
       - Ref: PythonRequirementsLambdaLayer
+    environment:
+      default_results: 8
+      RESTAURANTS_TABLE: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
+
+
   get-restaurants:
     handler: lambdas/restaurants.handler
     name: ${self:stages.${self:provider.stage}.name}-get-restaurants
