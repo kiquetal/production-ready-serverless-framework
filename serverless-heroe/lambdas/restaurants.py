@@ -53,6 +53,7 @@ def load_restaurants(event, context):
     try:
         template = return_page()
         restaurants = get_restaurants(default_results)
+        print("Weekday is", datetime.datetime.now().weekday())
         dayOfWeek = days[datetime.datetime.now().weekday()]
         rendered_page = template.render(dayOfWeek=dayOfWeek, restaurants=restaurants)
         return html_response(rendered_page)

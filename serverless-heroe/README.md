@@ -22,19 +22,24 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
 
 ## API Endpoints
 
-### 1. List Buckets
+### 1. Index Page
 
 - **URL**: `/`
 - **Method**: GET
-- **Description**: Returns a list of all S3 buckets in your AWS account.
-- **Handler**: `lambdas/handler.hello`
+- **Description**: Returns a static HTML page with the restaurant application.
+- **Handler**: `lambdas/restaurants.load_restaurants`
+- **CORS**: Enabled
 
-### 2. HTML Endpoint
+### 2. Get Restaurants
 
-- **URL**: `/html`
+- **URL**: `/restaurants`
 - **Method**: GET
-- **Description**: Returns an HTML page from a static file stored in the project.
-- **Handler**: `lambdas/handler.returnHtml`
+- **Description**: Returns a list of restaurants from DynamoDB.
+- **Handler**: `lambdas/restaurants.handler`
+- **CORS**: Enabled
+- **Environment Variables**:
+  - `RESTAURANTS_TABLE`: DynamoDB table name for restaurants
+  - `default_results`: 8 (default number of results)
 
 You can deploy the service using the following command:
 
