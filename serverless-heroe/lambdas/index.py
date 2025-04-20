@@ -4,6 +4,7 @@ import boto3
 from jinja2 import FileSystemLoader, Environment
 from lib.response import success_response, error_response, html_response
 from lib.sig4 import aws_signed_request
+days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 def return_page():
     try:

@@ -27,7 +27,8 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
 - **URL**: `/`
 - **Method**: GET
 - **Description**: Returns a static HTML page with the restaurant application.
-- **Handler**: `lambdas/restaurants.load_restaurants`
+- **Handler**: `lambdas/index.load_restaurants`
+- **Authentication**: None (publicly accessible)
 - **CORS**: Enabled
 
 ### 2. Get Restaurants
@@ -36,6 +37,7 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
 - **Method**: GET
 - **Description**: Returns a list of restaurants from DynamoDB.
 - **Handler**: `lambdas/restaurants.handler`
+- **Authentication**: AWS IAM (requires SigV4 signed requests)
 - **CORS**: Enabled
 - **Environment Variables**:
   - `RESTAURANTS_TABLE`: DynamoDB table name for restaurants

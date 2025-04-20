@@ -12,7 +12,6 @@ dynamodb = boto3.client('dynamodb')
 default_results = int(os.environ.get('default_results'))
 table_name = os.environ.get('RESTAURANTS_TABLE')
 
-days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 def deserialize(item):
     deserializer = TypeDeserializer()
     return {k: deserializer.deserialize(v) for k, v in item.items()}
