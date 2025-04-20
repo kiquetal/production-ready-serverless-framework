@@ -52,7 +52,7 @@ def load_restaurants(event, context):
             'restaurants': restaurants,
             'awsRegion': os.environ.get('AWS_REGION'),
             'cognitoUserPoolId': os.environ.get('COGNITO_USER_POOL_ID'),
-            'cognitoClientId': os.environ.get('COGNITO_CLIENT_ID'),
+            'cognitoClientId': os.environ.get('COGNITO_WEB_CLIENT_ID'),
             'searchUrl': os.environ.get('SEARCH_URL'),
             }
 
