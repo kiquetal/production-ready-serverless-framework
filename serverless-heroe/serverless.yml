@@ -69,7 +69,6 @@ functions:
       API_GATEWAY: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
       COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
       COGNITO_WEB_CLIENT_ID: !Ref WebCognitoUserPoolClient
-      AWS_REGION: ${AWS::Region}
   get-restaurants:
     handler: lambdas/restaurants.handler
     name: ${self:stages.${self:provider.stage}.name}-get-restaurants

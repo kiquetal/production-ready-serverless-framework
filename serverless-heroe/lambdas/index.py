@@ -53,7 +53,7 @@ def load_restaurants(event, context):
             'awsRegion': os.environ.get('AWS_REGION'),
             'cognitoUserPoolId': os.environ.get('COGNITO_USER_POOL_ID'),
             'cognitoClientId': os.environ.get('COGNITO_WEB_CLIENT_ID'),
-            'searchUrl': os.environ.get('SEARCH_URL'),
+            'searchUrl': os.environ.get('API_GATEWAY') + '/restaurants/search'
             }
 
         rendered_page = template.render(**variables_templates)
