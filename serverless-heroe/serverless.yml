@@ -67,6 +67,7 @@ functions:
     environment:
       default_results: 8
       API_GATEWAY: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
+      API_PROD_DOMAIN: https://serverless-heroe.cresterida.me
       COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
       COGNITO_WEB_CLIENT_ID: !Ref WebCognitoUserPoolClient
   get-restaurants:

@@ -19,6 +19,9 @@ def return_page():
 def get_restaurants_via_api(count=8):
     """Fetch restaurants through the API Gateway instead of directly from DynamoDB"""
     api_url = os.environ.get('API_GATEWAY')
+    api_prod_domain = os.environ.get('API_PROD_DOMAIN')
+    if api_prod_domain:
+        api_url = api_prod_domain
     if not api_url:
         raise ValueError("API_GATEWAY environment variable not set")
 
