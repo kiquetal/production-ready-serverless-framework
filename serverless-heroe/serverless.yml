@@ -79,6 +79,8 @@ functions:
       include:
         - lambdas/restaurants.py
         - lib/response.py
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
 plugins:
   - serverless-python-requirements
 resources:
