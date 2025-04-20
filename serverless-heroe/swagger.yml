@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: Serverless Heroe API
+  description: API for the Serverless Heroe application
+  version: 1.0.0
+paths:
+  /:
+    get:
+      summary: Homepage endpoint
+      description: Returns the application homepage
+      x-amazon-apigateway-integration:
+        uri: 
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${IndexLambdaFunction.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+      responses:
+        '200':
+          description: Successful response
+  /restaurants:
+    get:
+      summary: Get all restaurants
+      description: Returns a list of restaurants
+      security:
+        - sigv4: []
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetRestaurantsLambdaFunction.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+      responses:
+        '200':
+          description: Successful response
+  /restaurants/search:
+    post:
+      summary: Search restaurants
+      description: Search for restaurants matching criteria
+      security:
+        - cognito: []
+      x-amazon-apigateway-integration:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${SearchRestaurantsLambdaFunction.Arn}/invocations
+        passthroughBehavior: when_no_match
+        httpMethod: POST
+        type: aws_proxy
+      responses:
+        '200':
+          description: Successful response
+components:
+  securitySchemes:
+    sigv4:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: awsSigv4
+    cognito:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - Fn::GetAtt: [CognitoUserPoolId, Arn]
