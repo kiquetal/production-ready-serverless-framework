@@ -41,7 +41,7 @@ def handler(event, context):
         theme = req['theme']
         default_results = os.getenv("default_results", 8)
         restaurants = search_by_theme(theme,default_results)
-
+        print(f"found {len(restaurants)} restaurants with theme {theme}")
         # Deserialize DynamoDB items before returning
         deserialized_restaurants = [deserialize_dynamodb_item(restaurant) for restaurant in restaurants]
 
