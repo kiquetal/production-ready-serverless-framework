@@ -44,6 +44,6 @@ jobs:
       - name: Deploy to AWS
         working-directory: ./serverless-heroe
         env:
-          SERVERLESS_ACCESS_KEY: ${{ vars.SERVERLESS_ACCESS_KEY}
+          SERVERLESS_ACCESS_KEY: ${{ vars.SERVERLESS_ACCESS_KEY }}
         run: |
           serverless deploy --stage $STAGE --verbose
