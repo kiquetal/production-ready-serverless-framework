@@ -36,6 +36,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Install Serverless plugins
+        working-directory: ./serverless-heroe
         run: |
           serverless plugin install -n serverless-python-requirements
 
