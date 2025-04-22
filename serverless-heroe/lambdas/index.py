@@ -21,10 +21,11 @@ def get_restaurants_via_api(count=8):
     api_url = os.environ.get('API_GATEWAY')
     api_prod_domain = os.environ.get('API_PROD_DOMAIN')
     if api_prod_domain:
-        api_url = api_prod_domain
+        api_url = api_prod_domain + "/apis"
     if not api_url:
         raise ValueError("API_GATEWAY environment variable not set")
 
+    print(f"The API URL is {api_url}")
     response = aws_signed_request(
         f"{api_url}/restaurants",
         params={"limit": count}
@@ -48,9 +49,11 @@ def load_restaurants(event, context):
         template = return_page()
         restaurants = get_restaurants_via_api(default_results)
         search_url = os.environ.get('API_GATEWAY') + '/restaurants/search'
-        search_url_prod = os.environ.get('API_PROD_DOMAIN') + '/restaurants/search'
+        search_url_prod = os.environ.get('API_PROD_DOMAIN') + '/apis' + '/restaurants/search'
         if os.environ.get('API_PROD_DOMAIN'):
+
             search_url = search_url_prod
+        print(f"search_url is {search_url}")
         print("Weekday is", datetime.datetime.now().weekday())
         dayOfWeek = days[datetime.datetime.now().weekday()]
 
