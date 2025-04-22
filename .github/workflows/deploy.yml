@@ -11,7 +11,6 @@ jobs:
   deploy:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -41,5 +40,6 @@ jobs:
           serverless plugin install -n serverless-python-requirements
 
       - name: Deploy to AWS
+        working-directory: ./serverless-heroe
         run: |
           serverless deploy --stage $STAGE --verbose
