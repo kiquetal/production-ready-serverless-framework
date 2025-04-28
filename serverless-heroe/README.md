@@ -19,6 +19,7 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
   - [Invocation](#invocation)
   - [Local development](#local-development)
 - [Lambda Layers and Dependencies](#lambda-layers-and-dependencies)
+- [GitHub Actions with AWS OIDC Authentication](#github-actions-with-aws-oidc-authentication)
 
 ## API Endpoints
 
@@ -215,4 +216,115 @@ To update dependencies:
 
 The layers are managed automatically, so you don't need to handle them manually.
 
-### Creating github-actions
+## GitHub Actions with AWS OIDC Authentication
+
+This section explains how to configure GitHub Actions to authenticate with AWS using OpenID Connect (OIDC), allowing your workflows to assume IAM roles without storing AWS credentials as GitHub secrets.
+
+### Overview
+
+Using OIDC for GitHub Actions with AWS provides several benefits:
+- No long-lived AWS credentials stored in GitHub
+- Temporary, automatically rotated credentials
+- Fine-grained access control using IAM roles
+- Improved security posture
+
+### Step 1: Create an OIDC Identity Provider in AWS
+
+1. Sign in to the AWS Management Console
+2. Navigate to IAM > Identity providers > Add provider
+3. Select "OpenID Connect" as the provider type
+4. For Provider URL, enter: `https://token.actions.githubusercontent.com`
+5. For Audience, enter: `sts.amazonaws.com`
+6. Click "Get thumbprint" to retrieve the certificate thumbprint
+7. Click "Add provider" to create the OIDC provider
+
+### Step 2: Create an IAM Role for GitHub Actions
+
+1. Go to IAM > Roles > Create role
+2. Select "Web identity" as the trusted entity type
+3. Choose the GitHub OIDC provider you just created
+4. For Audience, select `sts.amazonaws.com`
+5. Add a condition to specify which GitHub repositories can use this role:
+
+```json
+{
+  "StringLike": {
+    "token.actions.githubusercontent.com:sub": "repo:your-org/your-repo:*"
+  }
+}
+```
+
+6. Click "Next" and attach the permissions policies this role needs (e.g., `AmazonS3ReadOnlyAccess`)
+7. Give the role a name (e.g., `GitHubActionsRole`)
+8. Complete the role creation process
+
+### Step 3: Configure GitHub Actions Workflow
+
+Create or update your GitHub Actions workflow file (e.g., `.github/workflows/deploy.yml`):
+
+```yaml
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  id-token: write   # Required for OIDC authentication
+  contents: read    # Required to checkout repository
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/GitHubActionsRole
+          aws-region: us-east-1
+
+      - name: Deploy with Serverless Framework
+        run: |
+          npm install -g serverless
+          serverless deploy
+```
+
+### Step 4: Fine-tuning Access Control (Optional)
+
+For better security, you can add additional conditions to the IAM role's trust policy:
+
+- Restrict to specific branches:
+  ```json
+  "StringEquals": {
+    "token.actions.githubusercontent.com:sub": "repo:your-org/your-repo:ref:refs/heads/main"
+  }
+  ```
+
+- Restrict to specific environments:
+  ```json
+  "StringEquals": {
+    "token.actions.githubusercontent.com:sub": "repo:your-org/your-repo:environment:production"
+  }
+  ```
+
+### Troubleshooting
+
+If you encounter authentication issues:
+
+1. Verify the GitHub workflow has the proper `permissions` block
+2. Check the IAM role trust policy for correct repository format
+3. Ensure the role has the necessary permissions
+4. Confirm the AWS region is correctly specified in the workflow
+
+### Security Best Practices
+
+- Scope IAM permissions to the minimum required for your workflows
+- Use branch and environment restrictions for sensitive operations
+- Regularly audit and rotate any long-lived credentials
+- Consider setting up boundary permissions for GitHub Actions roles
+
+For more information, refer to the [GitHub OIDC documentation](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services) and [AWS IAM documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-idp_oidc.html).
+
