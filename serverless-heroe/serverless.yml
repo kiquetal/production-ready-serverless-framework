@@ -16,7 +16,7 @@ provider:
   name: aws
   runtime: python3.10
   stage: ${opt:stage, 'dev'}
-  profile: ${opt:aws-profile, 'default'}
+  profile: ${opt:aws-profile, ''}
   logRetentionInDays: 7
   iam:
     role:
