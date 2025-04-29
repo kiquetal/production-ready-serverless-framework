@@ -48,7 +48,7 @@ jobs:
           AWS_IAM_ROLE_ARN: ${{ vars.AWS_IAM_ROLE_ARN }}
         with:
           role-to-assume: ${{ env.AWS_IAM_ROLE_ARN }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
           role-session-name: github-actions
       - name: Deploy to AWS
         working-directory: ./serverless-heroe
