@@ -9,7 +9,7 @@ stages:
         name: development
         description: Development stage
         RESTAURANT_TABLE: ${self:stages.dev.name}-${self:service}-restaurants
-        PREFIX_SSM: /${self:service}/${self:provider.stage}
+        PREFIX_SSM: ${self:service}/${self:provider.stage}
     prod:
         name: production
         description: Production stage
@@ -70,7 +70,7 @@ functions:
     layers:
       - Ref: PythonRequirementsLambdaLayer
     environment:
-      DEFAULT_RESULTS: '${self:stages.${self:provider.stage}.PREFIX_SSM}/default_results'
+      DEFAULT_RESULTS: '/${self:stages.${self:provider.stage}.PREFIX_SSM}/default_results'
       API_GATEWAY: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}'
       API_PROD_DOMAIN: https://serverless-heroe.cresterida.me
       COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
