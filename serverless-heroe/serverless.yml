@@ -9,7 +9,7 @@ stages:
         name: development
         description: Development stage
         RESTAURANT_TABLE: ${self:stages.dev.name}-${self:service}-restaurants
-        PREFIX_SSM: /${self:service}/${self:provider.stage}/
+        PREFIX_SSM: /${self:service}/${self:provider.stage}
     prod:
         name: production
         description: Production stage

@@ -49,6 +49,7 @@ def load_restaurants(event, context):
         template = return_page()
         default_results = os.environ.get('DEFAULT_RESULTS')
         default_results = int(get_parameter(name=default_results))
+        print("default_results is", default_results)
         restaurants = get_restaurants_via_api(default_results)
         search_url = os.environ.get('API_GATEWAY') + '/restaurants/search'
         search_url_prod = os.environ.get('API_PROD_DOMAIN') + '/apis' + '/restaurants/search'
