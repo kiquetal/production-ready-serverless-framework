@@ -1,9 +1,9 @@
 import  os
 import datetime
-import boto3
 from jinja2 import FileSystemLoader, Environment
 from lib.response import success_response, error_response, html_response
 from lib.sig4 import aws_signed_request
+from aws_lambda_powertools.utilities.parameters import get_parameter
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 def return_page():
@@ -47,6 +47,8 @@ def load_restaurants(event, context):
     try:
         default_results = int(os.environ.get('default_results', 8))
         template = return_page()
+        default_results = os.environ.get('DEFAULT_RESULTS')
+        default_results = int(get_parameter(name=default_results))
         restaurants = get_restaurants_via_api(default_results)
         search_url = os.environ.get('API_GATEWAY') + '/restaurants/search'
         search_url_prod = os.environ.get('API_PROD_DOMAIN') + '/apis' + '/restaurants/search'
