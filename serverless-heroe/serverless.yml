@@ -11,6 +11,7 @@ stages:
         RESTAURANT_TABLE: ${self:stages.dev.name}-${self:service}-restaurants
         PREFIX_SSM: ${self:service}/${self:provider.stage}
         EVENT_BRIDGE_EVENTS: ${self:service}-${self:provider.stage}-orders-events
+        ORDERS_TOPIC: ${self:service}-${self:provider.stage}-orders-topic
     prod:
         name: production
         description: Production stage
@@ -213,9 +214,13 @@ resources:
           - ALLOW_REFRESH_TOKEN_AUTH
         PreventUserExistenceErrors: ENABLED
     EventBusEvents:
-        Type: AWS::Events::EventBus
-        Properties:
+      Type: AWS::Events::EventBus
+      Properties:
             Name: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
+    RestaurantNotificationTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:stages.${self:provider.stage}.ORDERS_TOPIC}
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
