@@ -42,6 +42,11 @@ provider:
           Action:
             - ssm:GetParameter
           Resource: !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${self:stages.${self:provider.stage}.PREFIX_SSM}/*'
+        - Effect: Allow
+          Action:
+            - events:PutEvents
+          Resource: !GetAtt EventBusEvents.Arn
+
 custom:
   pythonRequirements:
     layer: true
@@ -76,6 +81,7 @@ functions:
       API_PROD_DOMAIN: https://serverless-heroe.cresterida.me
       COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
       COGNITO_WEB_CLIENT_ID: !Ref WebCognitoUserPoolClient
+      ORDERS_API: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}/orders'
   get-restaurants:
     handler: lambdas/restaurants.handler
     name: ${self:stages.${self:provider.stage}.name}-get-restaurants
@@ -116,6 +122,27 @@ functions:
     environment:
       default_results: 8
       RESTAURANTS_TABLE: ${self:stages.${self:provider.stage}.RESTAURANT_TABLE}
+  place-order:
+    handler: lambdas/place-order.handler
+    name: ${self:stages.${self:provider.stage}.name}-place-order
+    events:
+      - http:
+          path: /orders
+          method: post
+          authorizer:
+            name: CognitoAuthorizer
+            type: COGNITO_USER_POOLS
+            arn: !GetAtt CognitoUserPoolId.Arn
+    package:
+      exclude:
+      - '**'
+      include:
+      - lambdas/place-order.py
+      - lib/response.py
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    environment:
+      EVENT_BUS_NAME: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
 plugins:
   - serverless-python-requirements
 resources:
