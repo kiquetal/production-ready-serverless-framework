@@ -238,3 +238,7 @@ resources:
       Value: !Ref ServerCognitoUserPoolClient
       Export:
         Name: ${self:service}-${sls:stage}-ServerCognitoUserPoolClientId
+    OrdersTopic:
+      Value: !Ref RestaurantNotificationTopic
+      Export:
+        Name: ${self:service}-${sls:stage}-OrdersTopic
