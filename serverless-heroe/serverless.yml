@@ -81,6 +81,7 @@ functions:
       API_PROD_DOMAIN: https://serverless-heroe.cresterida.me
       COGNITO_USER_POOL_ID: !Ref CognitoUserPoolId
       COGNITO_WEB_CLIENT_ID: !Ref WebCognitoUserPoolClient
+      ORDERS_API: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${self:provider.stage}/orders'
   get-restaurants:
     handler: lambdas/restaurants.handler
     name: ${self:stages.${self:provider.stage}.name}-get-restaurants
