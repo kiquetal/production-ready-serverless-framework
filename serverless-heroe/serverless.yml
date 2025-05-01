@@ -47,6 +47,10 @@ provider:
           Action:
             - events:PutEvents
           Resource: !GetAtt EventBusEvents.Arn
+        - Effect: Allow
+          Action:
+            - sns:Publish
+          Resource: !Ref RestaurantNotificationTopic
 
 custom:
   pythonRequirements:
@@ -155,7 +159,6 @@ functions:
               - big-mouth
             detail-type:
               - order_placed
-
     package:
       exclude:
         - '**'
