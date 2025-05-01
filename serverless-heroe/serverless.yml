@@ -144,6 +144,29 @@ functions:
       - Ref: PythonRequirementsLambdaLayer
     environment:
       EVENT_BUS_NAME: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
+  notify-restaurant:
+    handler: lambdas/notify-restaurant.handler
+    name: ${self:stages.${self:provider.stage}.name}-notify-restaurant
+    events:
+      - eventBridge:
+          eventBus: !Ref EventBusEvents
+          pattern:
+            source:
+              - big-mouth
+            detail-type:
+              - order_placed
+
+    package:
+      exclude:
+        - '**'
+      include:
+        - lambdas/notify-restaurant.py
+        - lib/response.py
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    environment:
+      SNS_TOPIC_ARN: !Ref RestaurantNotificationTopic
+      EVENT_BUS_NAME: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
 plugins:
   - serverless-python-requirements
 resources:
