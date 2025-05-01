@@ -142,7 +142,7 @@ functions:
     layers:
       - Ref: PythonRequirementsLambdaLayer
     environment:
-      BUS_NAME: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
+      EVENT_BUS_NAME: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
 plugins:
   - serverless-python-requirements
 resources:

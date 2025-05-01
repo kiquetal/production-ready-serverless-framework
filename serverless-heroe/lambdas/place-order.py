@@ -3,8 +3,10 @@ import json
 import os
 from lib.response import success_response, error_response
 import uuid
+
 # Create the EventBridge client
 events_client = boto3.client('events')
+
 
 def handler(event, context):
     try:
@@ -26,17 +28,16 @@ def handler(event, context):
                         'restaurant_name': restaurant_name,
 
                     }),
-                    'EventBusName': os.environ['EVENT_BUS_NAME']
+                    'EventBusName': os.environ.get('EVENT_BUS_NAME')
                 }]
         )
 
         print(f"Order placed event sent to EventBridge for order ID: {order_id}")
 
-
         # Return a success response
-        return success_response({"order_id":order_id}, 200)
+        return success_response({"order_id": order_id}, 200)
 
     except Exception as e:
         # Handle any exceptions that occur during order processing
         print(f"Error placing order: {str(e)}")
-    return error_response({"message": "Failed to place order: " + str(e)}, 500)
+        return error_response({"message": "Failed to place order: " + str(e)}, 500)
