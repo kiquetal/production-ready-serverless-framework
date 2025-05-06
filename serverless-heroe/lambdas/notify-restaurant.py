@@ -10,7 +10,7 @@ from aws_lambda_powertools.utilities.idempotency import (
 persistence_layer = DynamoDBPersistenceLayer(
     table_name=os.environ.get('IDEMPOTENCY_TABLE')
 )
-@idempotent(persistence_layer=persistence_layer)
+@idempotent(persistence_store=persistence_layer)
 def handler(event, context):
   try:
       # Receive event from evenBridge
@@ -33,6 +33,7 @@ def handler(event, context):
             }]
     )
     print(f"Restaurant notification event sent to EventBridge for order ID: {order['order_id']}")
+    return success_response({"body": json.dumps(order)})
   except Exception as e:
     print(f"Error in notify-restaurant: {str(e)}")
     return error_response({"message": "Failed to notify restaurant: " + str(e)}, 500)

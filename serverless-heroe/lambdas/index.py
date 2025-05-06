@@ -53,9 +53,11 @@ def load_restaurants(event, context):
         restaurants = get_restaurants_via_api(default_results)
         search_url = os.environ.get('API_GATEWAY') + '/restaurants/search'
         search_url_prod = os.environ.get('API_PROD_DOMAIN') + '/apis' + '/restaurants/search'
+        order_url = os.environ.get('ORDERS_API')
+        order_url_prod = os.environ.get('API_PROD_DOMAIN') + '/apis' + '/orders'
         if os.environ.get('API_PROD_DOMAIN'):
-
             search_url = search_url_prod
+            order_url = order_url_prod
         print(f"search_url is {search_url}")
         print("Weekday is", datetime.datetime.now().weekday())
         dayOfWeek = days[datetime.datetime.now().weekday()]
@@ -67,7 +69,7 @@ def load_restaurants(event, context):
             'cognitoUserPoolId': os.environ.get('COGNITO_USER_POOL_ID'),
             'cognitoClientId': os.environ.get('COGNITO_WEB_CLIENT_ID'),
             'searchUrl': search_url,
-            'orderApi': os.environ.get('ORDERS_API')
+            'orderApi': order_url
             }
 
         rendered_page = template.render(**variables_templates)
