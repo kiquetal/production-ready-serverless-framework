@@ -177,6 +177,7 @@ functions:
     environment:
       SNS_TOPIC_ARN: !Ref RestaurantNotificationTopic
       EVENT_BUS_NAME: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
+      IDEMPOTENCY_TABLE: ${self:stages.${self:provider.stage}.IDEMPOTENCY_TABLE}
 plugins:
   - serverless-python-requirements
 resources:
