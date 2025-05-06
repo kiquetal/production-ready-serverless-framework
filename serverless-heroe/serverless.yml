@@ -12,6 +12,7 @@ stages:
         PREFIX_SSM: ${self:service}/${self:provider.stage}
         EVENT_BRIDGE_EVENTS: ${self:service}-${self:provider.stage}-orders-events
         ORDERS_TOPIC: ${self:service}-${self:provider.stage}-orders-topic
+        IDEMPOTENCY_TABLE: ${self:service}-${self:provider.stage}-idempotency
     prod:
         name: production
         description: Production stage
@@ -247,6 +248,17 @@ resources:
       Type: AWS::SNS::Topic
       Properties:
         TopicName: ${self:stages.${self:provider.stage}.ORDERS_TOPIC}
+    IdempontencyTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: ${self:stages.${self:provider.stage}.IDEMPOTENCY_TABLE}
+          BillingMode: PAY_PER_REQUEST
+          AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          KeySchema:
+          - AttributeName: id
+            KeyType: HASH
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
