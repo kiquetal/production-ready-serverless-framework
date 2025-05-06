@@ -33,6 +33,7 @@ def handler(event, context):
             }]
     )
     print(f"Restaurant notification event sent to EventBridge for order ID: {order['order_id']}")
+    return success_response({"body": json.dumps(order)})
   except Exception as e:
     print(f"Error in notify-restaurant: {str(e)}")
     return error_response({"message": "Failed to notify restaurant: " + str(e)}, 500)
