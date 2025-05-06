@@ -10,7 +10,7 @@ from aws_lambda_powertools.utilities.idempotency import (
 persistence_layer = DynamoDBPersistenceLayer(
     table_name=os.environ.get('IDEMPOTENCY_TABLE')
 )
-@idempotent(persistence_layer=persistence_layer)
+@idempotent(persistence_store=persistence_layer)
 def handler(event, context):
   try:
       # Receive event from evenBridge
