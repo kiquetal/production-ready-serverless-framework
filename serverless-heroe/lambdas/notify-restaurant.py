@@ -2,6 +2,15 @@ import json
 import os
 import boto3
 from lib.response import  success_response, error_response
+from aws_lambda_powertools.utilities.idempotency import (
+    DynamoDBPersistenceLayer,
+    idempotent,
+)
+
+persistence_layer = DynamoDBPersistenceLayer(
+    table_name=os.environ.get('IDEMPOTENCY_TABLE')
+)
+@idempotent(persistence_layer=persistence_layer)
 def handler(event, context):
   try:
       # Receive event from evenBridge
