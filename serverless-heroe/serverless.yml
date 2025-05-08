@@ -278,6 +278,16 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: ${self:stages.${self:provider.stage}.name}.QUEUE_ON_FAILURE
+    AlarmTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:stages.${self:provider.stage}.name}-alarm-topic
+    AlarmTopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: !Ref AlarmTopic
+        Protocol: email
+        Endpoint: kiquetal@gmail.com
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
