@@ -4,7 +4,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::dynamodb:putItem
     Parameters:
-      TableName: OrdersTable
+      TableName: !Ref OrdersTable
       Item:
         id:
           S.$: "$.order_id"

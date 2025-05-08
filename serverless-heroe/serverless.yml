@@ -325,6 +325,17 @@ resources:
           Value: !Ref NotifyDashrestaurantLambdaFunction
         AlarmActions:
           - !Ref AlarmTopic
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: OrdersTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
