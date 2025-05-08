@@ -13,6 +13,7 @@ stages:
         EVENT_BRIDGE_EVENTS: ${self:service}-${self:provider.stage}-orders-events
         ORDERS_TOPIC: ${self:service}-${self:provider.stage}-orders-topic
         IDEMPOTENCY_TABLE: ${self:service}-${self:provider.stage}-idempotency
+        QUEUE_ON_FAILURE: ${self:service}-${self:provider.stage}-queue-on-failure
     prod:
         name: production
         description: Production stage
@@ -178,6 +179,10 @@ functions:
       SNS_TOPIC_ARN: !Ref RestaurantNotificationTopic
       EVENT_BUS_NAME: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
       IDEMPOTENCY_TABLE: ${self:stages.${self:provider.stage}.IDEMPOTENCY_TABLE}
+    destinations:
+      onFailure:
+        type: sqs
+        arn: !GetAtt OnFailureQueue.Arn
 plugins:
   - serverless-python-requirements
 resources:
@@ -269,6 +274,56 @@ resources:
           TimeToLiveSpecification:
             Enabled: true
             AttributeName: expiration
+    OnFailureQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:stages.${self:provider.stage}.name}.QUEUE_ON_FAILURE
+    AlarmTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:stages.${self:provider.stage}.name}-alarm-topic
+    AlarmTopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: !Ref AlarmTopic
+        Protocol: email
+        Endpoint: kiquetal@gmail.com
+    OnFailureQueueAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: ${self:stages.${self:provider.stage}.name}-on-failure-alarm
+        AlarmDescription: "Alarm when the OnFailureQueue has messages"
+        MetricName: ApproximateNumberOfMessagesVisible
+        Namespace: AWS/SQS
+        Statistic: Maximum
+        Period: 300
+        EvaluationPeriods: 1
+        Threshold: 0
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: notBreaching
+        Dimensions:
+          - Name: QueueName
+            Value: !GetAtt OnFailureQueue.QueueName
+        AlarmActions:
+          - !Ref AlarmTopic
+    DestinationDeliveryAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: ${self:stages.${self:provider.stage}.name}-destination-delivery-alarm
+        AlarmDescription: "Alarm when the OnFailureQueue has messages"
+        MetricName: DestinationDeliveryFailures
+        Namespace: AWS/Lambda
+        Statistic: Average
+        Period: 300
+        EvaluationPeriods: 1
+        Threshold: 0
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: notBreaching
+        Dimensions:
+        - Name: FunctionName
+          Value: !Ref notify-restaurant
+        AlarmActions:
+          - !Ref AlarmTopic
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
