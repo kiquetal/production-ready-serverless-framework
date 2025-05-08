@@ -288,6 +288,42 @@ resources:
         TopicArn: !Ref AlarmTopic
         Protocol: email
         Endpoint: kiquetal@gmail.com
+    OnFailureQueueAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: ${self:stages.${self:provider.stage}.name}-on-failure-alarm
+        AlarmDescription: "Alarm when the OnFailureQueue has messages"
+        MetricName: ApproximateNumberOfMessagesVisible
+        Namespace: AWS/SQS
+        Statistic: Maximum
+        Period: 300
+        EvaluationPeriods: 1
+        Threshold: 0
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: notBreaching
+        Dimensions:
+          - Name: QueueName
+            Value: !GetAtt OnFailureQueue.QueueName
+        AlarmActions:
+          - !Ref AlarmTopic
+    DestinationDeliveryAlarm:
+      Type: AWS::CloudWatch::Alarm
+      Properties:
+        AlarmName: ${self:stages.${self:provider.stage}.name}-destination-delivery-alarm
+        AlarmDescription: "Alarm when the OnFailureQueue has messages"
+        MetricName: DestinationDeliveryFailures
+        Namespace: AWS/Lambda
+        Statistic: Average
+        Period: 300
+        EvaluationPeriods: 1
+        Threshold: 0
+        ComparisonOperator: GreaterThanThreshold
+        TreatMissingData: notBreaching
+        Dimensions:
+        - Name: FunctionName
+          Value: !Ref notify-restaurant
+        AlarmActions:
+          - !Ref AlarmTopic
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
