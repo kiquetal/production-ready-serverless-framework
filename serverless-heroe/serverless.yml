@@ -185,6 +185,7 @@ functions:
         arn: !GetAtt OnFailureQueue.Arn
 plugins:
   - serverless-python-requirements
+  - serverless-step-functions
 resources:
   Resources:
     RestaurantsTable:
@@ -255,7 +256,7 @@ resources:
     EventBusEvents:
       Type: AWS::Events::EventBus
       Properties:
-            Name: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
+        Name: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
     RestaurantNotificationTopic:
       Type: AWS::SNS::Topic
       Properties:
