@@ -181,7 +181,7 @@ functions:
       IDEMPOTENCY_TABLE: ${self:stages.${self:provider.stage}.IDEMPOTENCY_TABLE}
     destinations:
       onFailure:
-        type: SQS
+        type: sqs
         arn: !GetAtt OnFailureQueue.Arn
 plugins:
   - serverless-python-requirements
