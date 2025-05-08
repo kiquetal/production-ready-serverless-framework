@@ -269,6 +269,10 @@ resources:
           TimeToLiveSpecification:
             Enabled: true
             AttributeName: expiration
+    OnFailureQueue:
+        Type: AWS::SQS::Queue
+        Properties:
+            QueueName: ${self:stages.${self:provider.stage}.name}-on-failure-queue
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
