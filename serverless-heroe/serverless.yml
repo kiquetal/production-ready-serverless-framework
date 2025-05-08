@@ -277,7 +277,7 @@ resources:
     OnFailureQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: ${self:stages.${self:provider.stage}.name}.QUEUE_ON_FAILURE
+        QueueName: ${self:stages.${self:provider.stage}.QUEUE_ON_FAILURE}
     AlarmTopic:
       Type: AWS::SNS::Topic
       Properties:
@@ -321,7 +321,7 @@ resources:
         TreatMissingData: notBreaching
         Dimensions:
         - Name: FunctionName
-          Value: !Ref notify-restaurant
+          Value: !Ref NotifyDashrestaurantLambdaFunction
         AlarmActions:
           - !Ref AlarmTopic
   Outputs:
