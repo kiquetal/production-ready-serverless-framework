@@ -14,6 +14,7 @@ stages:
         ORDERS_TOPIC: ${self:service}-${self:provider.stage}-orders-topic
         IDEMPOTENCY_TABLE: ${self:service}-${self:provider.stage}-idempotency
         QUEUE_ON_FAILURE: ${self:service}-${self:provider.stage}-queue-on-failure
+        ORDERS_TABLE: ${self:service}-${self:provider.stage}-orders
     prod:
         name: production
         description: Production stage
@@ -328,7 +329,7 @@ resources:
     OrdersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: OrdersTable
+        TableName: ${self:stages.${self:provider.stage}.ORDERS_TABLE}
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
