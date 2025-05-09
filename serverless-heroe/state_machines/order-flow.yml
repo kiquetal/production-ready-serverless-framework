@@ -51,7 +51,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::dynamodb:updateItem
     Parameters:
-      TableName: OrdersTable
+      TableName: !Ref O
       Key:
         id:
           S.$: "$.order_id"
@@ -88,7 +88,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::dynamodb:updateItem
     Parameters:
-      TableName: OrdersTable
+      TableName: !Ref OrdersTable
       Key:
         id:
           S.$: "$.order_id"
@@ -125,7 +125,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::dynamodb:updateItem
     Parameters:
-      TableName: OrdersTable
+      TableName: !Ref OrdersTable
       Key:
         id:
           S.$: "$.order_id"

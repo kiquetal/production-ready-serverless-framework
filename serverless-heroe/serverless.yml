@@ -81,7 +81,7 @@ stepFunctions:
   stateMachines:
     orderFlow:
       definition:
-        ${file(./state_machines/order-flow.yml)}
+        ${file(state_machines/order-flow.yml)}
 functions:
   index:
     handler: lambdas/index.load_restaurants
