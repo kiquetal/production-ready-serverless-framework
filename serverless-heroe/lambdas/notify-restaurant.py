@@ -16,6 +16,7 @@ logger = Logger(
 persistence_layer = DynamoDBPersistenceLayer(
     table_name=os.environ.get('IDEMPOTENCY_TABLE')
 )
+@logger.inject_lambda_context(log_event=True)
 @idempotent(persistence_store=persistence_layer)
 def handler(event, context):
   try:

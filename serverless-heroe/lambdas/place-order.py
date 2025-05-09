@@ -1,5 +1,3 @@
-from logging import Logger
-
 import boto3
 import json
 import os
@@ -12,7 +10,7 @@ events_client = boto3.client('events')
 logger = Logger(
    service="place-order"
 )
-
+@logger.inject_lambda_context(log_event=True)
 def handler(event, context):
     try:
         # Read from body json then convert to dict
