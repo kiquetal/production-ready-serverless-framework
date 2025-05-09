@@ -206,6 +206,7 @@ functions:
       - Ref: PythonRequirementsLambdaLayer
     environment:
       ORDERS_TABLE: ${self:stages.${self:provider.stage}.ORDERS_TABLE}
+      IDEMPOTENCY_TABLE: ${self:stages.${self:provider.stage}.IDEMPOTENCY_TABLE}
 plugins:
   - serverless-python-requirements
   - serverless-step-functions
