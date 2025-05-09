@@ -294,6 +294,10 @@ resources:
       Type: AWS::Events::EventBus
       Properties:
         Name: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
+    UserNotificationTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:stages.${self:provider.stage}.name}-user-notification-topic
     RestaurantNotificationTopic:
       Type: AWS::SNS::Topic
       Properties:

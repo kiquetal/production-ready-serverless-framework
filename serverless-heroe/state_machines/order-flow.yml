@@ -20,7 +20,7 @@ States:
         - Detail:
             order_id.$: "$.order_id"
           DetailType: order_placed
-          EventBusName: OrdersBus
+          EventBusName: !Ref EventBusEvents
           Source: big-mouth
     ResultPath:
     Next: Notify restaurant
@@ -28,7 +28,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::sns:publish.waitForTaskToken
     Parameters:
-      TopicArn: RestaurantNotificationTopic
+      TopicArn: !Ref RestaurantNotificationTopic
       Message:
         order-id.$: "$.order_id"
         task-token.$: "$$.Task.Token"
@@ -71,7 +71,7 @@ States:
         - Detail:
             order_id.$: "$.order_id"
           DetailType: order_accepted
-          EventBusName: OrdersBus
+          EventBusName: !Ref EventBusEvents
           Source: big-mouth
     ResultPath:
     Next: Notify user of order ACCEPTED
@@ -79,7 +79,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::sns:publish
     Parameters:
-      TopicArn: UserNotificationTopic
+      TopicArn: !Ref UserNotificationTopic
       Message:
         order-id.$: "$.order_id"
     End: true
@@ -108,7 +108,7 @@ States:
         - Detail:
             order_id.$: "$.order_id"
           DetailType: order_rejected
-          EventBusName: OrdersBus
+          EventBusName: !Ref EventBusEvents
           Source: big-mouth
     ResultPath:
     Next: Notify user of order REJECTED
@@ -116,7 +116,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::sns:publish
     Parameters:
-      TopicArn: UserNotificationTopic
+      TopicArn: !Ref UserNotificationTopic
       Message:
         order-id.$: "$.order_id"
     End: true
@@ -145,7 +145,7 @@ States:
         - Detail:
             order_id.$: "$.order_id"
           DetailType: order_timed_out
-          EventBusName: OrdersBus
+          EventBusName: !Ref EventBusEvents
           Source: big-mouth
     ResultPath:
     Next: Notify user of order TIMED_OUT
@@ -153,7 +153,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::sns:publish
     Parameters:
-      TopicArn: UserNotificationTopic
+      TopicArn: !Ref UserNotificationTopic
       Message:
         order-id.$: "$.order_id"
     ResultPath:
