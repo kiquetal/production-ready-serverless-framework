@@ -1,7 +1,15 @@
 import os
 import boto3
+from aws_lambda_powertools.utilities.idempotency import (
+    DynamoDBPersistenceLayer,
+    idempotent,
+)
 
-
+persistence_layer = DynamoDBPersistenceLayer(
+    table_name=os.environ.get('IDEMPOTENCY_TABLE')
+)
+@idempotent(persistence_store=persistence_layer,
+            event_key_jmespath="$.detail.order_id")
 def handler(event):
     try:
       order = event['detail']
