@@ -196,6 +196,14 @@ functions:
   seed-orders:
     handler: lambdas/seed-order.handler
     name: ${self:stages.${self:provider.stage}.name}-seed-orders
+    events:
+      - eventBridge:
+          eventBus: !Ref EventBusEvents
+          pattern:
+            source:
+              - big-mouth
+            detail-type:
+              - order_placed
     package:
       exclude:
         - '**'
