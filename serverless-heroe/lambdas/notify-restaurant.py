@@ -38,8 +38,8 @@ def handler(event, context):
                 'EventBusName': os.environ.get('EVENT_BUS_NAME')
             }]
     )
-    print(f"Restaurant notification event sent to EventBridge for order ID: {order['order_id']}")
+    logger.debug(f"Event sent to {os.environ.get('EVENT_BUS_NAME')}")
     return success_response({"body": json.dumps(order)})
   except Exception as e:
-    print(f"Error in notify-restaurant: {str(e)}")
+    logger.error("Error in notify-restaurant: " + str(e))
     return error_response({"message": "Failed to notify restaurant: " + str(e)}, 500)

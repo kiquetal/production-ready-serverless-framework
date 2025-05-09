@@ -1,12 +1,17 @@
+from logging import Logger
+
 import boto3
 import json
 import os
 from lib.response import success_response, error_response
 import uuid
-
+from  aws_lambda_powertools import Logger
 # Create the EventBridge client
 events_client = boto3.client('events')
 
+logger = Logger(
+   service="place-order"
+)
 
 def handler(event, context):
     try:
@@ -15,7 +20,7 @@ def handler(event, context):
         # Extract order details from the request body
         restaurant_name = body.get('restaurant_name')
         order_id = str(uuid.uuid4())
-        print(f"Placing order with ID: {order_id} for restaurant: {restaurant_name}")
+        logger.debug("Place order %s", order_id)
         event_bridge = boto3.client('events')
         # Create the event to be sent to EventBridge
         event_bridge.put_events(
@@ -32,12 +37,11 @@ def handler(event, context):
                 }]
         )
 
-        print(f"Order placed event sent to EventBridge for order ID: {order_id}")
-
+        logger.debug("Event sent to %s", os.environ.get('EVENT_BUS_NAME'))
         # Return a success response
         return success_response({"order_id": order_id}, 200)
 
     except Exception as e:
         # Handle any exceptions that occur during order processing
-        print(f"Error placing order: {str(e)}")
+        logger.error("Error in place-order: " + str(e))
         return error_response({"message": "Failed to place order: " + str(e)}, 500)
