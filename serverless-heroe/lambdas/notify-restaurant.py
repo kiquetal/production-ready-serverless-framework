@@ -7,9 +7,16 @@ from aws_lambda_powertools.utilities.idempotency import (
     idempotent,
 )
 
+from aws_lambda_powertools import Logger
+
+logger = Logger(
+    service="notify-restaurant"
+)
+
 persistence_layer = DynamoDBPersistenceLayer(
     table_name=os.environ.get('IDEMPOTENCY_TABLE')
 )
+@logger.inject_lambda_context(log_event=True)
 @idempotent(persistence_store=persistence_layer)
 def handler(event, context):
   try:
@@ -20,7 +27,7 @@ def handler(event, context):
         TopicArn=os.environ.get('SNS_TOPIC_ARN'),
         Message=json.dumps(order),
     )
-    print(f"Order notification sent to SNS topic: {os.environ.get('SNS_TOPIC_ARN')}")
+    logger.debug("Notification sent to ")
     # publish new event to eventBridge
     event_bridge = boto3.client('events')
     event_bridge.put_events(
@@ -32,8 +39,8 @@ def handler(event, context):
                 'EventBusName': os.environ.get('EVENT_BUS_NAME')
             }]
     )
-    print(f"Restaurant notification event sent to EventBridge for order ID: {order['order_id']}")
+    logger.debug(f"Event sent to {os.environ.get('EVENT_BUS_NAME')}")
     return success_response({"body": json.dumps(order)})
   except Exception as e:
-    print(f"Error in notify-restaurant: {str(e)}")
+    logger.error("Error in notify-restaurant: " + str(e))
     return error_response({"message": "Failed to notify restaurant: " + str(e)}, 500)
