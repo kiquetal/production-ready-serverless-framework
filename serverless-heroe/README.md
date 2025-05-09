@@ -19,6 +19,7 @@ The current implementation includes a simple HTTP API that lists all S3 buckets 
   - [Invocation](#invocation)
   - [Local development](#local-development)
 - [Lambda Layers and Dependencies](#lambda-layers-and-dependencies)
+- [Serverless Step Functions](#serverless-step-functions)
 - [GitHub Actions with AWS OIDC Authentication](#github-actions-with-aws-oidc-authentication)
 
 ## API Endpoints
@@ -216,6 +217,75 @@ To update dependencies:
 
 The layers are managed automatically, so you don't need to handle them manually.
 
+## Serverless Step Functions
+
+This project uses the `serverless-step-functions` plugin to define and deploy AWS Step Functions directly through the Serverless Framework.
+
+### Plugin Features
+
+- Define state machines using Amazon States Language directly in your serverless.yml
+- Automatically create IAM roles with the necessary permissions
+- Supports local invocation for testing
+- Integrates with other AWS services like Lambda, SNS, SQS, and DynamoDB
+
+### Configuration
+
+The plugin is included in the `serverless.yml` file:
+
+```yaml
+plugins:
+  - serverless-python-requirements
+  - serverless-step-functions
+```
+
+### Defining Step Functions
+
+Step Functions are defined in the `stepFunctions` section of your `serverless.yml`:
+
+```yaml
+stepFunctions:
+  stateMachines:
+    myStateMachine:
+      name: ${self:service}-${self:provider.stage}-myStateMachine
+      definition:
+        Comment: "A simple state machine example"
+        StartAt: FirstState
+        States:
+          FirstState:
+            Type: Task
+            Resource:
+              Fn::GetAtt: [myLambdaFunction, Arn]
+            Next: FinalState
+          FinalState:
+            Type: Succeed
+```
+
+### Deployment
+
+When you run `serverless deploy`, the plugin will:
+1. Create the Step Function state machine in AWS
+2. Set up all necessary IAM permissions
+3. Configure any event triggers for the state machine
+
+### Local Testing
+
+To test your Step Functions locally:
+
+```bash
+serverless invoke stepf --name myStateMachine --data '{"key": "value"}'
+```
+
+### Visualizing State Machines
+
+AWS Step Functions provides a visual workflow editor in the AWS Console. After deployment, you can:
+
+1. Log in to the AWS Console
+2. Navigate to Step Functions
+3. Select your deployed state machine
+4. Use the visual editor to see the flow and monitor executions
+
+For more details and advanced usage, refer to the [serverless-step-functions plugin documentation](https://github.com/serverless-operations/serverless-step-functions).
+
 ## GitHub Actions with AWS OIDC Authentication
 
 This section explains how to configure GitHub Actions to authenticate with AWS using OpenID Connect (OIDC), allowing your workflows to assume IAM roles without storing AWS credentials as GitHub secrets.
@@ -328,3 +398,4 @@ If you encounter authentication issues:
 
 For more information, refer to the [GitHub OIDC documentation](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services) and [AWS IAM documentation](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-idp_oidc.html).
 
+`

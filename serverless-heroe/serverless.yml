@@ -14,6 +14,7 @@ stages:
         ORDERS_TOPIC: ${self:service}-${self:provider.stage}-orders-topic
         IDEMPOTENCY_TABLE: ${self:service}-${self:provider.stage}-idempotency
         QUEUE_ON_FAILURE: ${self:service}-${self:provider.stage}-queue-on-failure
+        ORDERS_TABLE: ${self:service}-${self:provider.stage}-orders
     prod:
         name: production
         description: Production stage
@@ -59,6 +60,15 @@ provider:
           - dynamodb:UpdateItem
           - dynamodb:DeleteItem
           Resource: !GetAtt IdempotencyTable.Arn
+
+        - Effect: Allow
+          Action:
+          - dynamodb:PutItem
+          - dynamodb:UpdateItem
+          - dynamodb:DeleteItem
+          - dynamodb:Scan
+          - dynamodb:GetItem
+          Resource: !GetAtt OrdersTable.Arn
 
 custom:
   pythonRequirements:
@@ -183,8 +193,31 @@ functions:
       onFailure:
         type: sqs
         arn: !GetAtt OnFailureQueue.Arn
+  seed-orders:
+    handler: lambdas/seed-order.handler
+    name: ${self:stages.${self:provider.stage}.name}-seed-orders
+    events:
+      - eventBridge:
+          eventBus: !Ref EventBusEvents
+          pattern:
+            source:
+              - big-mouth
+            detail-type:
+              - order_placed
+    package:
+      exclude:
+        - '**'
+      include:
+        - lambdas/seed-order.py
+        - lib/response.py
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
+    environment:
+      ORDERS_TABLE: ${self:stages.${self:provider.stage}.ORDERS_TABLE}
+      IDEMPOTENCY_TABLE: ${self:stages.${self:provider.stage}.IDEMPOTENCY_TABLE}
 plugins:
   - serverless-python-requirements
+  - serverless-step-functions
 resources:
   Resources:
     RestaurantsTable:
@@ -255,7 +288,7 @@ resources:
     EventBusEvents:
       Type: AWS::Events::EventBus
       Properties:
-            Name: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
+        Name: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}
     RestaurantNotificationTopic:
       Type: AWS::SNS::Topic
       Properties:
@@ -324,6 +357,23 @@ resources:
           Value: !Ref NotifyDashrestaurantLambdaFunction
         AlarmActions:
           - !Ref AlarmTopic
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:stages.${self:provider.stage}.ORDERS_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+    EventBusArchive:
+      Type: AWS::Events::Archive
+      Properties:
+        ArchiveName: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}-archive
+        SourceArn: !GetAtt EventBusEvents.Arn
+        RetentionDays: 30
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
