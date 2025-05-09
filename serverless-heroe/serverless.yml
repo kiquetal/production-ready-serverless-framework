@@ -69,7 +69,8 @@ provider:
           - dynamodb:Scan
           - dynamodb:GetItem
           Resource: !GetAtt OrdersTable.Arn
-
+  environment:
+    LOG_LEVER: debugK
 custom:
   pythonRequirements:
     layer: true

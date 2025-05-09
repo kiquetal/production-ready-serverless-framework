@@ -7,6 +7,12 @@ from aws_lambda_powertools.utilities.idempotency import (
     idempotent,
 )
 
+from aws_lambda_powertools import Logger
+
+logger = Logger(
+    service="notify-restaurant"
+)
+
 persistence_layer = DynamoDBPersistenceLayer(
     table_name=os.environ.get('IDEMPOTENCY_TABLE')
 )
