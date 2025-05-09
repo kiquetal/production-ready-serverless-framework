@@ -51,7 +51,7 @@ States:
     Type: Task
     Resource: arn:aws:states:::dynamodb:updateItem
     Parameters:
-      TableName: !Ref O
+      TableName: !Ref OrdersTable
       Key:
         id:
           S.$: "$.order_id"
