@@ -360,6 +360,12 @@ resources:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
+    EventBusArchive:
+      Type: AWS::Events::Archive
+      Properties:
+        ArchiveName: ${self:stages.${self:provider.stage}.EVENT_BRIDGE_EVENTS}-archive
+        SourceArn: !GetAtt EventBusEvents.Arn
+        RetentionDays: 30
   Outputs:
     CognitoUserPoolId:
       Value: !Ref CognitoUserPoolId
