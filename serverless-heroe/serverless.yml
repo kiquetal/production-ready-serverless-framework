@@ -70,7 +70,7 @@ provider:
           - dynamodb:GetItem
           Resource: !GetAtt OrdersTable.Arn
   environment:
-    LOG_LEVER: debugK
+    LOG_LEVEL: debug
 custom:
   pythonRequirements:
     layer: true

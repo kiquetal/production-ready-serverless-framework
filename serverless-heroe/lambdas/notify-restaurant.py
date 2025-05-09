@@ -26,7 +26,7 @@ def handler(event, context):
         TopicArn=os.environ.get('SNS_TOPIC_ARN'),
         Message=json.dumps(order),
     )
-    print(f"Order notification sent to SNS topic: {os.environ.get('SNS_TOPIC_ARN')}")
+    logger.debug("Notification sent to ")
     # publish new event to eventBridge
     event_bridge = boto3.client('events')
     event_bridge.put_events(
